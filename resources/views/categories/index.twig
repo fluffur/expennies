@@ -10,21 +10,19 @@
 {% block content %}
     <div class="categories container content-body">
         <div class="text-end mb-4">
-            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#newCategoryModal">
+            <button type="button" class="btn btn-primary open-new-category-form-btn" data-bs-toggle="modal" data-bs-target="#newCategoryModal">
                 <i class="bi bi-plus-circle me-1"></i>
                 New Category
             </button>
         </div>
         <div class="modal fade" id="newCategoryModal" tabindex="-1" aria-hidden="true">
             <div class="modal-dialog">
-                <form action="/categories" method="post">
                     <div class="modal-content">
                         <div class="modal-header">
                             <h5 class="modal-title">New Category</h5>
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
                         <div class="modal-body">
-                            {{ csrf.fields | raw }}
                             <div class="form-outline form-white mb-4">
                                 <input type="text" name="name" required
                                        class="form-control form-control-lg"
@@ -36,13 +34,12 @@
                                 <i class="bi bi-x-circle me-1"></i>
                                 Close
                             </button>
-                            <button type="submit" class="btn btn-success">
+                            <button class="btn btn-success create-category-btn">
                                 <i class="bi bi-check-circle me-1"></i>
                                 Create
                             </button>
                         </div>
                     </div>
-                </form>
             </div>
         </div>
         {% include 'categories/edit_category_modal.twig' %}

@@ -7,6 +7,8 @@ namespace App\Services;
 use App\Entity\Category;
 use App\Entity\User;
 use Doctrine\ORM\EntityManager;
+use Doctrine\ORM\Tools\Pagination\Paginator;
+use http\QueryString;
 
 class CategoryService
 {
@@ -49,5 +51,16 @@ class CategoryService
         $this->entityManager->flush();
         
         return $category;
+    }
+
+    public function getPaginatedCategories(int $start, int $length): Paginator
+    {
+        $query = $this->entityManager
+            ->getRepository(Category::class)
+            ->createQueryBuilder('c')
+            ->setFirstResult($start)
+            ->setMaxResults($length);
+
+        return new Paginator($query);
     }
 }

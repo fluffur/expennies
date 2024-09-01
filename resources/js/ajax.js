@@ -89,5 +89,6 @@ export {
     ajax,
     get,
     post,
-    del
+    del,
+    clearValidationErrors
 }
