@@ -67,4 +67,9 @@ class CategoryService
 
         return $category;
     }
+
+    public function getAll(): array
+    {
+        return $this->entityManager->getRepository(Category::class)->findAll();
+    }
 }

@@ -52,7 +52,7 @@ class CategoriesController
     public function get(Request $request, Response $response, array $args): Response
     {
         $category = $this->categoryService->getById((int) $args['id']);
-
+        var_dump($args);
         if (! $category) {
             return $response->withStatus(404);
         }
