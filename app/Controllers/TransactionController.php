@@ -9,13 +9,15 @@ use App\DataObjects\TransactionData;
 use App\Entity\Receipt;
 use App\Entity\Transaction;
 use App\RequestValidators\TransactionRequestValidator;
+use App\RequestValidators\UploadTransactionsCsvRequestValidator;
 use App\ResponseFormatter;
 use App\Services\CategoryService;
 use App\Services\RequestService;
 use App\Services\TransactionService;
 use DateTime;
-use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Message\ResponseInterface as Response;
+use Psr\Http\Message\ServerRequestInterface as Request;
+use Psr\Http\Message\UploadedFileInterface;
 use Slim\Views\Twig;
 
 class TransactionController
@@ -135,5 +137,19 @@ class TransactionController
             $params->draw,
             $totalTransactions
         );
+    }
+
+    public function import(Request $request, Response $response): Response
+    {
+        /** @var UploadedFileInterface $file */
+        $file = $this->requestValidatorFactory->make(UploadTransactionsCsvRequestValidator::class)->validate(
+            $request->getUploadedFiles()
+        )['transaction'];
+
+        $transactions = $this->requestService->extractTransactions($file->getStream()->detach());
+
+        $this->transactionService->createAll($transactions);
+
+        return $response;
     }
 }

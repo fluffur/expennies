@@ -1,13 +1,15 @@
 <?php
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace App\Services;
 
 use App\DataObjects\DataTableQueryParams;
 use App\DataObjects\TransactionData;
+use App\Entity\Category;
 use App\Entity\Transaction;
 use App\Entity\User;
+use DateTime;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Tools\Pagination\Paginator;
 
@@ -35,14 +37,14 @@ class TransactionService
             ->setFirstResult($params->start)
             ->setMaxResults($params->length);
 
-        $orderBy  = in_array($params->orderBy, ['description', 'amount', 'date', 'category'])
+        $orderBy = in_array($params->orderBy, ['description', 'amount', 'date', 'category'])
             ? $params->orderBy
             : 'date';
         $orderDir = strtolower($params->orderDir) === 'asc' ? 'asc' : 'desc';
 
-        if (! empty($params->searchTerm)) {
+        if (!empty($params->searchTerm)) {
             $query->where('t.description LIKE :description')
-                  ->setParameter('description', '%' . addcslashes($params->searchTerm, '%_') . '%');
+                ->setParameter('description', '%' . addcslashes($params->searchTerm, '%_') . '%');
         }
 
         if ($orderBy === 'category') {
@@ -79,4 +81,28 @@ class TransactionService
 
         return $transaction;
     }
+
+    public function createAll(array $transactions): void
+    {
+        foreach ($transactions as $transactionData) {
+            $transaction = new Transaction();
+            $transaction->setDate($transactionData['date']);
+            $transaction->setAmount($transactionData['amount']);
+            $transaction->setDescription($transactionData['description']);
+            $category = $this->entityManager
+                ->getRepository(Category::class)
+                ->findOneBy(['name' => $transactionData['category']]);
+            if (!$category) {
+                $category = new Category();
+                $category->setName($transactionData['category']);
+                $this->entityManager->persist($category);
+            }
+            $transaction->setCategory($category);
+            $this->entityManager->persist($transaction);
+
+        }
+        $this->entityManager->flush();
+    }
+
+
 }

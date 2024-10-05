@@ -3,12 +3,13 @@ import { get, post, del } from "./ajax"
 import DataTable          from "datatables.net"
 
 import "../css/transactions.scss"
+import tab from "bootstrap/js/src/tab";
 
 window.addEventListener('DOMContentLoaded', function () {
     const newTransactionModal  = new Modal(document.getElementById('newTransactionModal'))
     const editTransactionModal = new Modal(document.getElementById('editTransactionModal'))
     const uploadReceiptModal   = new Modal(document.getElementById('uploadReceiptModal'))
-
+    const uploadCsvModal       = new Modal(document.getElementById('uploadCsvModal'))
     const table = new DataTable('#transactionsTable', {
         serverSide: true,
         ajax: '/transactions/load',
@@ -86,7 +87,6 @@ window.addEventListener('DOMContentLoaded', function () {
         const deleteBtn        = event.target.closest('.delete-transaction-btn')
         const uploadReceiptBtn = event.target.closest('.open-receipt-upload-btn')
         const deleteReceiptBtn = event.target.closest('.delete-receipt')
-
         if (editBtn) {
             const transactionId = editBtn.getAttribute('data-id')
 
@@ -124,6 +124,7 @@ window.addEventListener('DOMContentLoaded', function () {
             }
         }
     })
+
 
     document.querySelector('.create-transaction-btn').addEventListener('click', function (event) {
         post(`/transactions`, getTransactionFormData(newTransactionModal), newTransactionModal._element)
@@ -165,6 +166,22 @@ window.addEventListener('DOMContentLoaded', function () {
                 }
             })
     })
+
+    document.querySelector('.upload-csv-btn').addEventListener('click', function (event) {
+        const formData = new FormData()
+        const files = uploadCsvModal._element.querySelector('input[type="file"]').files
+
+        for (let i = 0; i < files.length; i++) {
+            formData.append('transaction', files[i])
+        }
+        post(`/transactions/import`, formData, uploadCsvModal._element).then(response => {
+            if (response.ok) {
+                table.draw()
+                uploadCsvModal.hide()
+            }
+        })
+    });
+
 })
 
 function getTransactionFormData(modal) {

@@ -52,4 +52,30 @@ class RequestService
             (int) $params['draw']
         );
     }
+
+    public function extractTransactions($detach): array
+    {
+        fgetcsv($detach);
+        $lines = [];
+        while (($transactionRow = fgetcsv($detach)) !== false) {
+            [$date, $description, $category, $amount] = $transactionRow;
+            $amount = (float) str_replace(['$', ','], '', $amount);
+            $lines[] = [
+                'date' => new \DateTime($date),
+                'description' => $description,
+                'category' => $category,
+                'amount' => $amount
+            ];
+        }
+        return $lines;
+    }
+
+
+    function formatDollarAmount(float $amount): string
+    {
+        $isNegative = $amount < 0;
+
+        return ($isNegative ? '-' : '') . '$' . number_format(abs($amount), 2);
+    }
+
 }
