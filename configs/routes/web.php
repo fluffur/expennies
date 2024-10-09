@@ -29,9 +29,9 @@ return function (App $app) {
         $categories->get('', [CategoryController::class, 'index']);
         $categories->get('/load', [CategoryController::class, 'load']);
         $categories->post('', [CategoryController::class, 'store']);
-        $categories->delete('/{id:[0-9]+}', [CategoryController::class, 'delete']);
-        $categories->get('/{id:[0-9]+}', [CategoryController::class, 'get']);
-        $categories->post('/{id:[0-9]+}', [CategoryController::class, 'update']);
+        $categories->delete('/{category:[0-9]+}', [CategoryController::class, 'delete']);
+        $categories->get('/{category:[0-9]+}', [CategoryController::class, 'get']);
+        $categories->post('/{category:[0-9]+}', [CategoryController::class, 'update']);
     })->add(AuthMiddleware::class);
 
     $app->group('/transactions', function (RouteCollectorProxy $transactions) {
@@ -39,18 +39,18 @@ return function (App $app) {
         $transactions->get('/load', [TransactionController::class, 'load']);
         $transactions->post('', [TransactionController::class, 'store']);
         $transactions->post('/import', [TransactionImporterController::class, 'import']);
-        $transactions->delete('/{id:[0-9]+}', [TransactionController::class, 'delete']);
-        $transactions->get('/{id:[0-9]+}', [TransactionController::class, 'get']);
-        $transactions->post('/{id:[0-9]+}', [TransactionController::class, 'update']);
-        $transactions->post('/{id:[0-9]+}/receipts', [ReceiptController::class, 'store']);
+        $transactions->delete('/{transaction:[0-9]+}', [TransactionController::class, 'delete']);
+        $transactions->get('/{transaction:[0-9]+}', [TransactionController::class, 'get']);
+        $transactions->post('/{transaction:[0-9]+}', [TransactionController::class, 'update']);
+        $transactions->post('/{transaction:[0-9]+}/receipts', [ReceiptController::class, 'store']);
         $transactions->get(
-            '/{transactionId:[0-9]+}/receipts/{id:[0-9]+}',
+            '/{transaction:[0-9]+}/receipts/{receipt:[0-9]+}',
             [ReceiptController::class, 'download']
         );
         $transactions->delete(
-            '/{transactionId:[0-9]+}/receipts/{id:[0-9]+}',
+            '/{transaction:[0-9]+}/receipts/{receipt:[0-9]+}',
             [ReceiptController::class, 'delete']
         );
-        $transactions->post('/{id:[0-9]+}/review', [TransactionController::class, 'toggleReviewed']);
+        $transactions->post('/{transaction:[0-9]+}/review', [TransactionController::class, 'toggleReviewed']);
     })->add(AuthMiddleware::class);
 };

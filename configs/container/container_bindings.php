@@ -15,6 +15,7 @@ use App\Enum\AppEnvironment;
 use App\Enum\SameSite;
 use App\Enum\StorageDriver;
 use App\RequestValidators\RequestValidatorFactory;
+use App\RouteEntityBindingStrategy;
 use App\Services\EntityManagerService;
 use App\Services\UserProviderService;
 use App\Session;
@@ -46,11 +47,17 @@ use function DI\create;
 return [
     App::class                              => function (ContainerInterface $container) {
         AppFactory::setContainer($container);
-
         $addMiddlewares = require CONFIG_PATH . '/middleware.php';
         $router         = require CONFIG_PATH . '/routes/web.php';
 
         $app = AppFactory::create();
+
+        $app->getRouteCollector()->setDefaultInvocationStrategy(
+            new RouteEntityBindingStrategy(
+                $container->get(EntityManagerService::class),
+                $app->getResponseFactory()
+            )
+        );
 
         $router($app);
 
