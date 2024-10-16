@@ -38,6 +38,9 @@ class User implements UserInterface
     #[Column(name: 'verified_at', nullable: true)]
     private ?\DateTime $verifiedAt;
 
+    #[Column]
+    private bool $hasTwoFactorAuthEnabled;
+
     #[OneToMany(mappedBy: 'user', targetEntity: Category::class)]
     private Collection $categories;
 
@@ -48,6 +51,7 @@ class User implements UserInterface
     {
         $this->categories   = new ArrayCollection();
         $this->transactions = new ArrayCollection();
+        $this->hasTwoFactorAuthEnabled = false;
     }
 
     public function getId(): int
@@ -134,8 +138,13 @@ class User implements UserInterface
 
     public function hasTwoFactorAuthEnabled(): bool
     {
-        // TODO:
+        return $this->hasTwoFactorAuthEnabled;
+    }
 
-        return true;
+    public function setHasTwoFactorAuthEnabled(bool $hasTwoFactorAuthEnabled): static
+    {
+        $this->hasTwoFactorAuthEnabled = $hasTwoFactorAuthEnabled;
+
+        return $this;
     }
 }

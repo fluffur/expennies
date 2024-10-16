@@ -1,0 +1,18 @@
+{% extends 'layout.twig' %}
+
+{% block title %}User Options{% endblock %}
+{% block content %}
+    <div class="container">
+        <form action="/options" method="post">
+            {{ csrf.fields | raw }}
+            <div class="form-check form-switch">
+
+                <input name="2fa" class="form-check-input has-two-factor-auth-enabled-check" type="checkbox"
+                       id="2fa" {{ user.hasTwoFactorAuthEnabled ? 'checked' }} ">
+                <label class="form-check-label"
+                       for="2fa">Enable 2-Factor Authentication</label>
+            </div>
+            <button type="submit" class="btn btn-primary">Save</button>
+        </form>
+    </div>
+{% endblock %}

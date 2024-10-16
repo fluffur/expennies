@@ -8,6 +8,7 @@ use App\Controllers\HomeController;
 use App\Controllers\ReceiptController;
 use App\Controllers\TransactionController;
 use App\Controllers\TransactionImporterController;
+use App\Controllers\UserOptionsController;
 use App\Controllers\VerifyController;
 use App\Middleware\AuthMiddleware;
 use App\Middleware\GuestMiddleware;
@@ -48,6 +49,12 @@ return function (App $app) {
             );
             $transactions->post('/{transaction}/review', [TransactionController::class, 'toggleReviewed']);
         });
+
+        $group->group('/options', function (RouteCollectorProxy $options) {
+            $options->get('', [UserOptionsController::class, 'index']);
+            $options->post('', [UserOptionsController::class, 'update']);
+        });
+
     })->add(VerifyEmailMiddleware::class)->add(AuthMiddleware::class);
 
     $app->group('', function (RouteCollectorProxy $group) {

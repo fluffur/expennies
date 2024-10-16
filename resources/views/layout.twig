@@ -47,11 +47,17 @@
                     </a>
                     <ul class="dropdown-menu" aria-labelledby="userDropDownMenu">
                         <li>
+                            <form action="/options" method="get">
+                                <button class="dropdown-item" href="#">Options</button>
+                            </form>
+                        </li>
+                        <li>
                             <form action="/logout" method="post">
                                 {{ csrf.fields | raw }}
                                 <button class="dropdown-item" href="#">Log Out</button>
                             </form>
                         </li>
+
                     </ul>
                 </div>
             </header>
