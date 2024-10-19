@@ -54,6 +54,7 @@ return function (App $app) {
         $group->group('/profile', function(RouteCollectorProxy $profile) {
             $profile->get('', [ProfileController::class, 'index']);
             $profile->post('', [ProfileController::class, 'update']);
+            $profile->post('/change-password', [ProfileController::class, 'changePassword']);
         });
     })->add(VerifyEmailMiddleware::class)->add(AuthMiddleware::class);
 
@@ -73,6 +74,10 @@ return function (App $app) {
         $guest->post('/register', [AuthController::class, 'register']);
         $guest->post('/login/two-factor', [AuthController::class, 'twoFactorLogin']);
         $guest->get('/forgot-password', [PasswordResetController::class, 'showForgotPasswordForm']);
+        $guest->get('/reset-password/{token}', [PasswordResetController::class, 'showResetPasswordForm'])
+            ->add(ValidateSignatureMiddleware::class)
+            ->setName('password-reset');
+        $guest->post('/reset-password/{token}', [PasswordResetController::class, 'resetPassword']);
         $guest->post('/forgot-password', [PasswordResetController::class, 'handleForgotPasswordRequest']);
     })->add(GuestMiddleware::class);
 };

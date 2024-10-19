@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace App\Services;
 
@@ -10,8 +10,10 @@ use App\Entity\User;
 
 class UserProfileService
 {
-    public function __construct(private readonly EntityManagerServiceInterface $entityManagerService)
-    {
+    public function __construct(
+        private readonly EntityManagerServiceInterface $entityManagerService,
+        private readonly HashService $hashService
+    ) {
     }
 
     public function update(User $user, UserProfileData $data): void
@@ -27,5 +29,11 @@ class UserProfileService
         $user = $this->entityManagerService->find(User::class, $userId);
 
         return new UserProfileData($user->getEmail(), $user->getName(), $user->hasTwoFactorAuthEnabled());
+    }
+
+    public function changePassword(User $user, #[\SensitiveParameter] string $newPassword): void
+    {
+        $user->setPassword($this->hashService->hashPassword($newPassword));
+        $this->entityManagerService->sync($user);
     }
 }

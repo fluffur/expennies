@@ -33,7 +33,7 @@ trait HasTimestamps
         return $this->createdAt;
     }
 
-    public function setCreatedAt(\DateTime $createdAt): Category
+    public function setCreatedAt(\DateTime $createdAt): static
     {
         $this->createdAt = $createdAt;
 
@@ -45,7 +45,7 @@ trait HasTimestamps
         return $this->updatedAt;
     }
 
-    public function setUpdatedAt(\DateTime $updatedAt): Category
+    public function setUpdatedAt(\DateTime $updatedAt): static
     {
         $this->updatedAt = $updatedAt;
 
