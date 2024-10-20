@@ -20,8 +20,9 @@ class HomeController
     ) {
     }
 
-    public function index(Response $response): Response
+    public function index(Response $response, array $args): Response
     {
+
         $startDate             = \DateTime::createFromFormat('Y-m-d', date('Y-m-01'));
         $endDate               = new \DateTime('now');
         $totals                = $this->transactionService->getTotals($startDate, $endDate);

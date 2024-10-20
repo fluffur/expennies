@@ -30,7 +30,7 @@ class TransactionImportRequestValidator implements RequestValidatorInterface
             throw new ValidationException(['importFile' => ['Maximum allowed size is 20 MB']]);
         }
 
-        $allowedMimeTypes = ['text/csv'];
+        $allowedMimeTypes = ['text/csv', 'application/vnd.ms-excel'];
 
         if (! in_array($uploadedFile->getClientMediaType(), $allowedMimeTypes)) {
             throw new ValidationException(['importFile' => ['Please select a CSV file to import']]);

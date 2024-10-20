@@ -78,7 +78,7 @@ class TransactionService
 
     public function getTotals(\DateTime $startDate, \DateTime $endDate): array
     {
-        $amounts = $this->entityManager
+        $totals = $this->entityManager
             ->getRepository(Transaction::class)
             ->createQueryBuilder('t')
             ->select('SUM(CASE WHEN t.amount > 0 THEN t.amount ELSE 0 END) AS income')
@@ -90,8 +90,8 @@ class TransactionService
             ->getQuery()
             ->getSingleResult();
 
-        $income = abs((float)$amounts['income']);
-        $expense = abs((float)$amounts['expense']);
+        $income = abs((float)$totals['income']);
+        $expense = abs((float)$totals['expense']);
         $net = $income - $expense;
 
         return ['net' => $net, 'income' => $income, 'expense' => $expense];
@@ -115,13 +115,24 @@ class TransactionService
         return $this->entityManager
             ->getRepository(Transaction::class)
             ->createQueryBuilder('t')
-            ->select('MONTH(t.createdAt) AS m')
+            ->select('MONTH(t.date) AS m')
             ->addSelect('SUM(CASE WHEN t.amount > 0 THEN t.amount ELSE 0 END) AS income')
-            ->addSelect('SUM(CASE WHEN t.amount < 0 THEN t.amount ELSE 0 END) AS expense')
-            ->where('YEAR(t.createdAt) = :year')
+            ->addSelect('SUM(CASE WHEN t.amount < 0 THEN -t.amount ELSE 0 END) AS expense')
+            ->where('YEAR(t.date) = :year')
             ->setParameter('year', $year)
             ->groupBy('m')
             ->getQuery()
             ->getResult();
+    }
+
+    public function getYears()
+    {
+      return $this->entityManager
+            ->getRepository(Transaction::class)
+            ->createQueryBuilder('t')
+            ->select('YEAR(t.date)')
+            ->distinct()
+            ->getQuery()
+            ->getSingleColumnResult();
     }
 }
