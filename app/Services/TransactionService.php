@@ -78,28 +78,50 @@ class TransactionService
 
     public function getTotals(\DateTime $startDate, \DateTime $endDate): array
     {
-        // TODO: Implement
+        $amounts = $this->entityManager
+            ->getRepository(Transaction::class)
+            ->createQueryBuilder('t')
+            ->select('SUM(CASE WHEN t.amount > 0 THEN t.amount ELSE 0 END) AS income')
+            ->addSelect('SUM(CASE WHEN t.amount < 0 THEN -t.amount ELSE 0 END) AS expense')
+            ->where('t.date >= :startDate')
+            ->andWhere('t.date <= :endDate')
+            ->setParameter('startDate', $startDate)
+            ->setParameter('endDate', $endDate)
+            ->getQuery()
+            ->getSingleResult();
 
-        return ['net' => 800, 'income' => 3000, 'expense' => 2200];
+        $income = abs((float)$amounts['income']);
+        $expense = abs((float)$amounts['expense']);
+        $net = $income - $expense;
+
+        return ['net' => $net, 'income' => $income, 'expense' => $expense];
     }
 
     public function getRecentTransactions(int $limit): array
     {
-        // TODO: Implement
-
-        return [];
+        return $this->entityManager
+            ->getRepository(Transaction::class)
+            ->createQueryBuilder('t')
+            ->select('t', 'c')
+            ->leftJoin('t.category', 'c')
+            ->orderBy('t.createdAt', 'DESC')
+            ->setMaxResults($limit)
+            ->getQuery()
+            ->getResult();
     }
 
     public function getMonthlySummary(int $year): array
     {
-        // TODO: Implement
-
-        return [
-            ['income' => 1500, 'expense' => 1100, 'm' => '3'],
-            ['income' => 2000, 'expense' => 1800, 'm' => '4'],
-            ['income' => 2500, 'expense' => 1900, 'm' => '5'],
-            ['income' => 2600, 'expense' => 1950, 'm' => '6'],
-            ['income' => 3000, 'expense' => 2200, 'm' => '7'],
-        ];
+        return $this->entityManager
+            ->getRepository(Transaction::class)
+            ->createQueryBuilder('t')
+            ->select('MONTH(t.createdAt) AS m')
+            ->addSelect('SUM(CASE WHEN t.amount > 0 THEN t.amount ELSE 0 END) AS income')
+            ->addSelect('SUM(CASE WHEN t.amount < 0 THEN t.amount ELSE 0 END) AS expense')
+            ->where('YEAR(t.createdAt) = :year')
+            ->setParameter('year', $year)
+            ->groupBy('m')
+            ->getQuery()
+            ->getResult();
     }
 }

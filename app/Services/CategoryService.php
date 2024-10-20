@@ -88,13 +88,14 @@ class CategoryService
 
     public function getTopSpendingCategories(int $limit): array
     {
-        // TODO: Implement
-
-        return [
-            ['name' => 'Category 1', 'total' => 700],
-            ['name' => 'Category 2', 'total' => 550],
-            ['name' => 'Category 3', 'total' => 475],
-            ['name' => 'Category 4', 'total' => 325],
-        ];
+        return $this->entityManager
+            ->getRepository(Category::class)
+            ->createQueryBuilder('c')
+            ->select('c.name', 'SUM(CASE WHEN t.amount < 0 THEN -t.amount ELSE 0 END) AS total')
+            ->leftJoin('c.transactions', 't')
+            ->groupBy('c')
+            ->setMaxResults($limit)
+            ->getQuery()
+            ->getResult();
     }
 }
