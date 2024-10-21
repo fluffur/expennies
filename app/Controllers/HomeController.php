@@ -7,7 +7,9 @@ namespace App\Controllers;
 use App\ResponseFormatter;
 use App\Services\CategoryService;
 use App\Services\TransactionService;
+use Clockwork\Request\Request;
 use Psr\Http\Message\ResponseInterface as Response;
+use Psr\Http\Message\ServerRequestInterface;
 use Slim\Views\Twig;
 
 class HomeController
@@ -20,11 +22,12 @@ class HomeController
     ) {
     }
 
-    public function index(Response $response, array $args): Response
+    public function index(ServerRequestInterface $request, Response $response): Response
     {
+        $queryParams = $request->getQueryParams();
 
-        $startDate             = \DateTime::createFromFormat('Y-m-d', date('Y-m-01'));
-        $endDate               = new \DateTime('now');
+        $startDate             = \DateTime::createFromFormat('Y-m-d', $queryParams['startDate'] ?? date('Y-m-01'));
+        $endDate               = new \DateTime($queryParams['endDate'] ?? 'now');
         $totals                = $this->transactionService->getTotals($startDate, $endDate);
         $recentTransactions    = $this->transactionService->getRecentTransactions(10);
         $topSpendingCategories = $this->categoryService->getTopSpendingCategories(4);
@@ -36,13 +39,17 @@ class HomeController
                 'totals'                => $totals,
                 'transactions'          => $recentTransactions,
                 'topSpendingCategories' => $topSpendingCategories,
+                'startDate' => $startDate->format('Y-m-d'),
+                'endDate' => $endDate->format('Y-m-d'),
             ]
         );
     }
 
-    public function getYearToDateStatistics(Response $response): Response
+    public function getYearToDateStatistics(ServerRequestInterface $request, Response $response): Response
     {
-        $data = $this->transactionService->getMonthlySummary((int) date('Y'));
+        $queryParams = $request->getQueryParams();
+        $year = (int)($queryParams['year'] ?? date('Y'));
+        $data = $this->transactionService->getMonthlySummary($year);
 
         return $this->responseFormatter->asJson($response, $data);
     }
